@@ -13,7 +13,7 @@ import productRoutes from "./routes/product.route.js";
 
 
 
-import { connectDB } from "./lib/db.js";
+import { connectDB } from "./db/db.js";
 
 dotenv.config();
 
