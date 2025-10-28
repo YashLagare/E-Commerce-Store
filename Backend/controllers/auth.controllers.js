@@ -17,8 +17,7 @@ const storeRefreshToken = async (userId, refreshToken) => {
   await redis.set(
     `refresh_token:${userId}`,
     refreshToken,
-    "EX",
-    7 * 24 * 60 * 60
+    { ex: 7 * 24 * 60 * 60 }
   ); // EX->refresh token in 7 days
 };
 
@@ -45,7 +44,7 @@ export const signup = async (req, res) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      return res.status(400).json({ msg: "User already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
     const user = await User.create({ name, email, password });
 
@@ -103,12 +102,12 @@ export const logout = async (req, res) => {
         refreshToken,
         process.env.REFRESH_TOKEN_SECRET
       );
-      await redis.del(`refresh_token:${decoded.userId}`);
+      await redis.del(`refresh_token:${decoded.userId}`).catch(() => {});
     }
 
     res.clearCookie("accessToken");
     res.clearCookie("refreshToken");
-    res.json({ msg: "logged out successfully" });
+    res.json({ message: "logged out successfully" });
   } catch (error) {
     console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -125,7 +124,7 @@ export const refreshToken = async (req, res) => {
         }
 // Verify the refresh token
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-        const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+        const storedToken = await redis.get(`refresh_token:${decoded.userId}`) || null;
 
         // check if the provided refresh token matches the stored token
         if(storedToken !== refreshToken) {

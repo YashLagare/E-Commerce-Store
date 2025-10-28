@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Loader, Lock, Mail, User, UserPlus } from "lucide-react";
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
+import { useUserStore } from "../../../stores/useUserStore.js";
 const SignUpPage = () => {
 
-	const loading = false;
 	const [formData, setFormData] = useState({
 		name: "",
 		email: "",
@@ -12,9 +13,16 @@ const SignUpPage = () => {
 		confirmPassword: "",
 	});
 
+	const {signup, loading}= useUserStore()
+
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		console.log(formData);
+		// console.log(formData);
+		if (formData.password.length < 6) {
+			toast.error("Password must be at least 6 characters long");
+			return;
+		}
+		signup(formData);
 	}
 
 
