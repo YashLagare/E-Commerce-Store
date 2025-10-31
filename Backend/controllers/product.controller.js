@@ -1,11 +1,11 @@
 import cloudinary from "../lib/cloudinary.js";
 import { redis } from "../lib/redis.js";
-import product, { default as Product } from "../models/product.model.js";
+import Product from "../models/product.model.js";
 
 
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await Products.find({}); // find all products
+        const products = await Product.find({}); // find all products
         res.json({ products });
     } catch (error) {
         console.log("Error in getAllProducts controller", error.message);
@@ -41,14 +41,14 @@ export const getFeaturedProducts = async (req, res) => {
 export const createProduct = async (req, res) => {
     try {
         const { name, description, price, image, category } = req.body;
-        
+
         let cloudinaryResponse = null;
 
         if (image) {
             cloudinaryResponse =  await cloudinary.uploader.upload(image,{folder: "products"});
         }
 
-        const product = await product.create ({
+        const product = await Product.create ({
             name,
             description,
             price,
@@ -56,9 +56,9 @@ export const createProduct = async (req, res) => {
             category,
 
         });
-        
+
         res.status(201).json(product)
-        
+
     } catch (error) {
         console.log("Error in createProduct controller",error.message);
         res.status(500).json({ message: "Server error", error: error.message });
@@ -67,7 +67,7 @@ export const createProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
-        const product = await product.findById(req.params.id);
+        const product = await Product.findById(req.params.id);
 
         if (!product) {
             return res.status(404).json({ message: "Product not found"});
@@ -83,7 +83,7 @@ export const deleteProduct = async (req, res) => {
             }
         }
 
-        await product.findByIdAndDelete(req.params.id);
+        await Product.findByIdAndDelete(req.params.id);
 
         res.json({ message: "Product deleted successfully"});
     } catch (error) {
@@ -94,7 +94,7 @@ export const deleteProduct = async (req, res) => {
 
 export const getRecommendedProducts = async (req, res) => {
     try {
-        const products = await product.aggregate([
+        const products = await Product.aggregate([
             {
                 $sample: {size:3}
             },
@@ -119,9 +119,9 @@ export const getRecommendedProducts = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
     const { category } = req.params;
     try {
-        
-        const products = await product.find({ category });
-        res.json(products);
+
+        const products = await Product.find({ category });
+        res.json({products});
 
     } catch (error) {
         console.log("Error in getProductsByCategory controller", error.message);
@@ -131,7 +131,7 @@ export const getProductsByCategory = async (req, res) => {
 
 export const toggleFeaturedProduct = async (req, res, next) => {
     try {
-        const product = await products.get(req.params.id);
+        const product = await Product.findById(req.params.id);
         if (product) {
             product.isFeatured = !product.isFeatured;
             const updatedProduct = await product.save();

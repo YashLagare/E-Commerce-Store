@@ -3,8 +3,10 @@ import { Toaster } from "react-hot-toast";
 import { Navigate, Route, Routes } from "react-router-dom";
 import LoadingSpinner from "./components/loadingSpinner/LoadingSpinner.jsx";
 import Navbar from "./components/navbar/Navbar.jsx";
+import AdminPage from "./pages/admin/AdminPage.jsx";
 import LoginPage from "./pages/auth/login/LoginPage";
 import SignUpPage from "./pages/auth/signup/SignUpPage";
+import CategoryPage from "./pages/categoryPage/CategoryPage.jsx";
 import HomePage from "./pages/home/HomePage";
 import { useUserStore } from "./stores/useUserStore.js";
 
@@ -34,6 +36,8 @@ function App() {
         <Route path="/" element={<HomePage/>}/>
         <Route path="/signup" element={!user ? <SignUpPage/> : <Navigate to="/"/>}/>
         <Route path="/login" element={!user ? <LoginPage/> : <Navigate to="/"/>}/>
+        <Route path="/admin-page" element={user?.role === "admin" ? <AdminPage/>: <Navigate to="/login"/>}/>
+        <Route path="/category/:category" element={<CategoryPage/>}/>
       </Routes>
     </div>
     <Toaster/>
